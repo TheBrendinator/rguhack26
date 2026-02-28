@@ -37,7 +37,7 @@ def thread_function(name):
 
     # Play the sound by writing the audio
     # data to the Stream using while loop
-    while rd_data != '':
+    while len(rd_data) > 0:
         stream.write(rd_data)
         rd_data = af.readframes(chunk)
 
@@ -45,7 +45,6 @@ def thread_function(name):
     stream.stop_stream()
     stream.close()
     pa.terminate()
-
 
     logging.info("Thread %s: finishing", name)
 
