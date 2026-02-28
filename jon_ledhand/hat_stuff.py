@@ -31,11 +31,16 @@ def create_node_list(pi_count_x: int, pi_count_y: int):
         return node_list, image_res
 
 
-def load_image(image_location: str, image_res: list[int]):
-        img = Image.open(image_location)
-        img = img.resize((image_res[0],image_res[1]))
-        img = np.asarray(img)
-        return img
+def load_image(image_location: str):
+        return Image.open(image_location)
+
+
+def resize_image(image, image_res):
+        return image.resize((image_res[0],image_res[1]))
+
+
+def get_image_as_array(image):
+        return np.asarray(image)
 
 
 def slice_image(frame = np.array([list[list[int]]]), node_list: list[node] = [], pi_count_x: int = 0, pi_count_y: int = 0): # type: ignore
