@@ -3,6 +3,17 @@
 import hat_stuff as hs
 import music_player as mp
 import visualizer as v
+from typing import TypedDict
+import numpy as np
+
+image_res: list[int]
+node = TypedDict("node", {"x": int, "y": int, "colors": list[list[int]]})
+node_list: list[node]
+image = np.array([])
+
+pi_count_x: int = 2
+pi_count_y: int = 2
+
 
 
 def check_modules():
@@ -14,4 +25,7 @@ def check_modules():
 check_modules()
 
 
-print(hs.create_node_list(16,9))
+node_list, image_res = hs.create_node_list(pi_count_x,pi_count_y)
+image = hs.load_image("jon_ledhand/frog.jpg", image_res)
+node_list = hs.slice_image(image, node_list, pi_count_x, pi_count_y)
+print(node_list)
