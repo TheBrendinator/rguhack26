@@ -5,6 +5,7 @@ import music_player as mp
 import visualizer as v
 from typing import TypedDict
 import numpy as np
+from time import sleep
 
 image_res: list[int]
 node = TypedDict("node", {"x": int, "y": int, "colors": list[list[int]]})
@@ -25,7 +26,11 @@ def check_modules():
 check_modules()
 
 
-node_list, image_res = hs.create_node_list(pi_count_x,pi_count_y)
-image = hs.load_image("jon_ledhand/frog.jpg", image_res)
-node_list = hs.slice_image(image, node_list, pi_count_x, pi_count_y)
-print(node_list)
+while True:
+        # Forces updates on a rate of 10ms
+        sleep(0.01)
+
+        # Resize image and split across multiple pi's (nodes)
+        node_list, image_res = hs.create_node_list(pi_count_x,pi_count_y)
+        image = hs.load_image("jon_ledhand/frog.jpg", image_res)
+        node_list = hs.slice_image(image, node_list, pi_count_x, pi_count_y)
