@@ -1,7 +1,7 @@
 import asyncio
 import websockets
 import json
-# from sense_hat import SenseHat
+from sense_hat import SenseHat
 from time import sleep
 
 
