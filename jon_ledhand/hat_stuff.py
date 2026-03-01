@@ -56,5 +56,5 @@ def slice_image(frame = np.array([list[list[int]]]), node_list: list[node] = [],
                                         blue_channel = int(pixel[2])
                                         for i in range(len(node_list)):
                                                 if node_list[i]["x"] == ax and node_list[i]["y"] == ay:
-                                                        node_list[i]["colors"].append([red_channel, green_channel, blue_channel])
+                                                        node_list[i]["colors"].append((red_channel, green_channel, blue_channel))
         return node_list
