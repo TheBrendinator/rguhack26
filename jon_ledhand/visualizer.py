@@ -1,14 +1,21 @@
 import numpy as np
 import sounddevice as sd
 import time
+import cv2
+
+# CODE USED IS FROM https://github.com/rubenmak/raspberry-pi-sense-hat-audio-spectrum-analyzer
+# AI ASSISTANCE WAS USED
 
 # -------------------------------
 # SETTINGS
 # -------------------------------
+
+latest_levels = None
 chunk = 4096
 samplerate = 44100
 channels = 1
 update_interval = 0.03  # seconds
+
 
 # LED matrix colors (RGB tuples)
 yellow = (255, 255, 0)
@@ -60,28 +67,25 @@ def calculate_levels(data):
 # -------------------------------
 # DISPLAY FUNCTIONS
 # -------------------------------
-def display_matrix(levels):
-    """Print an 8x8 grid to the console"""
-    figure = [e]*64
-    for y in range(8):
-        for x in range(int(levels[y])):
-            figure[y*8 + x] = spectrum[x]
+def show_fullscreen(levels, scale=40):
+    base_size = 8
 
-    # Print grid row by row
-    for row in range(8):
-        line = ""
-        for col in range(8):
-            color = figure[row*8 + col]
-            if color == e:
-                line += "⬛"
-            elif color == green:
-                line += "🟩"
-            elif color == yellow:
-                line += "🟨"
-            elif color == red:
-                line += "🟥"
-        print(line)
-    print("\n" + "-"*16)
+    # Create 8x8 RGB image
+    img = np.zeros((base_size, base_size, 3), dtype=np.uint8)
+
+    for y in range(base_size):
+        for x in range(int(levels[y])):
+            img[y, x] = spectrum[x]
+
+    # Scale image (pixel-perfect enlargement)
+    img = cv2.resize(
+        img,
+        (base_size * scale, base_size * scale),
+        interpolation=cv2.INTER_NEAREST
+    )
+
+    cv2.imshow("Spectrum", img)
+    cv2.waitKey(1)
 
 # -------------------------------
 # SELECT MIC DEVICE
@@ -96,13 +100,10 @@ print(f"Using device: {devices[mic_device]['name']}")
 # CALLBACK
 # -------------------------------
 def audio_callback(indata, frames, time_info, status):
+    global latest_levels
     if status:
         print("Status:", status)
-    levels = calculate_levels(indata.copy())
-    # Debug: show raw and scaled levels
-    print("Raw levels:", matrix)
-    print("Scaled levels:", levels)
-    display_matrix(levels)
+    latest_levels = calculate_levels(indata.copy())
 
 # -------------------------------
 # MAIN LOOP
@@ -114,9 +115,18 @@ with sd.InputStream(
     blocksize=chunk,
     callback=audio_callback
 ):
+    cv2.namedWindow("Spectrum", cv2.WND_PROP_FULLSCREEN)
+    
+
     print("Listening... Press Ctrl+C to stop.")
+
     try:
         while True:
+            if latest_levels is not None:
+                show_fullscreen(latest_levels, scale=60)
+
             time.sleep(update_interval)
+
     except KeyboardInterrupt:
         print("Stopped.")
+        cv2.destroyAllWindows()
