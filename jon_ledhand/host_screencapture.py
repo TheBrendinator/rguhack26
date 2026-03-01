@@ -25,14 +25,17 @@ async def handle_client(websocket):
         # Forces updates on a rate of 10ms
         sleep(0.01)
 
-        pi_count_x: int = 1
-        pi_count_y: int = 1
+        pi_count_x: int = 2
+        pi_count_y: int = 2
 
         # Resize image and split across multiple pi's (nodes)
         node_list, image_res = hs.create_node_list(pi_count_x,pi_count_y)
 
         # Screencapture
         image = ImageGrab.grab()
+
+        # The Frog
+        # image = hs.load_image("jon_ledhand/frog.jpg") 
 
         # Resize and slice for pi's
         image = hs.resize_image(image, image_res)
@@ -51,7 +54,7 @@ async def handle_client(websocket):
 # Main function to start the WebSocket server
 async def main():
 
-        server = await websockets.serve(handle_client, 'localhost', 8765)
+        server = await websockets.serve(handle_client, '192.168.137.1', 8765)
         await server.wait_closed()
 
 
