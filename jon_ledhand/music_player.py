@@ -4,37 +4,59 @@
 ''' Play a WAVE file '''
 import pyaudio
 import wave
+import logging
+import threading
+import time
 
-filename = 'jon_ledhand/we_make_da_music/Rude_Buster.wav'
 
-# Set chunk size of 1024 samples per data frame
-chunk = 1024  
+def thread_function(name):
+    logging.info("Thread %s: starting", name)
+    
+    filename = 'jon_ledhand/we_make_da_music/Rude_Buster.wav'
 
-# Open the soaudio/sound file 
-af = wave.open(filename, 'rb')
+    # Set chunk size of 1024 samples per data frame
+    chunk = 1024  
 
-# Create an interface to PortAudio 
-pa = pyaudio.PyAudio()
+    # Open the soaudio/sound file 
+    af = wave.open(filename, 'rb')
 
-# Open a .Stream object to write the WAV file
-# 'output = True' indicates that the 
-# sound will be played rather than
-# recorded and opposite can be used for recording
-stream = pa.open(format = pa.get_format_from_width(af.getsampwidth()),
-                channels = af.getnchannels(),
-                rate = af.getframerate(),
-                output = True)
+    # Create an interface to PortAudio 
+    pa = pyaudio.PyAudio()
 
-# Read data in chunks
-rd_data = af.readframes(chunk)
+    # Open a .Stream object to write the WAV file
+    # 'output = True' indicates that the 
+    # sound will be played rather than
+    # recorded and opposite can be used for recording
+    stream = pa.open(format = pa.get_format_from_width(af.getsampwidth()),
+                    channels = af.getnchannels(),
+                    rate = af.getframerate(),
+                    output = True)
 
-# Play the sound by writing the audio
-# data to the Stream using while loop
-while rd_data != '':
-    stream.write(rd_data)
+    # Read data in chunks
     rd_data = af.readframes(chunk)
 
-# Close and terminate the stream
-stream.stop_stream()
-stream.close()
-pa.terminate()
+    # Play the sound by writing the audio
+    # data to the Stream using while loop
+    while len(rd_data) > 0:
+        stream.write(rd_data)
+        rd_data = af.readframes(chunk)
+
+        # Close and terminate the stream
+    stream.stop_stream()
+    stream.close()
+    pa.terminate()
+
+    logging.info("Thread %s: finishing", name)
+
+if __name__ == "__main__":
+    format = "%(asctime)s: %(message)s"
+    logging.basicConfig(format=format, level=logging.INFO,
+                        datefmt="%H:%M:%S")
+
+    logging.info("Main    : before creating thread")
+    x = threading.Thread(target=thread_function, args=(1,))
+    logging.info("Main    : before running thread")
+    x.start()
+    logging.info("Main    : wait for the thread to finish")
+    # x.join()
+    logging.info("Main    : all done")
